@@ -101,7 +101,8 @@ export default function LoginScreen() {
                                 placeholderTextColor={'#BDBDBD'}
                                 onFocus={() => setIsShowKeyboard(true)}
                                 value={state.email}
-                                onChangeText={(value) => setState((prevState) => ({...prevState, email:value}) )}
+                                onChangeText={(value) => setState((prevState) => ({ ...prevState, email: value }))}
+                                onSubmitEditing={keyboardHide}
                             />
                         </View>
                             <View style={{marginTop: 16}}>
@@ -113,8 +114,9 @@ export default function LoginScreen() {
                                 placeholderTextColor={'#BDBDBD'}
                                 onFocus={() => setIsShowKeyboard(true)}
                                 value={state.passworg}
-                                onChangeText={(value) => setState((prevState) => ({...prevState, passworg:value}) )}
-                                />
+                                onChangeText={(value) => setState((prevState) => ({ ...prevState, passworg: value }))}
+                                onSubmitEditing={keyboardHide}
+                            />
                             <TouchableOpacity onPress={togglePasswordVisibility} style={styles.icon}>
                              <Icon name={isPasswordVisible ? 'eye-slash' : 'eye'} size={20} />
                             </TouchableOpacity>
