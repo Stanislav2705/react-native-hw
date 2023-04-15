@@ -1,6 +1,7 @@
-import { useFonts } from 'expo-font';
+// import { useFonts } from 'expo-font';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
+    Button,
     Dimensions,
     ImageBackground,
     Keyboard,
@@ -13,17 +14,18 @@ import {
     TouchableWithoutFeedback,
     View
 } from 'react-native';
-import * as SplashScreen from 'expo-splash-screen';
+// import * as SplashScreen from 'expo-splash-screen';
 import Icon from 'react-native-vector-icons/FontAwesome';
 
 const initialState = {
+    login: '',
     email: '',
     passworg: '',
 }
 
-SplashScreen.preventAutoHideAsync();
+// SplashScreen.preventAutoHideAsync();
 
-export default function LoginScreen() {
+export default function RegistrationScreen({navigation}) {
     const [isShowKeyboad, setIsShowKeyboard] = useState(false);
     const [state, setState] = useState(initialState);
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -60,26 +62,26 @@ export default function LoginScreen() {
         Keyboard.dismiss();
     }
 
-    const [fontsLoaded] = useFonts({
-        'Roboto-Regular': require("../assets/fonts/Roboto-Regular.ttf"),
-        'Roboto-Medium': require("../assets/fonts/Roboto-Medium.ttf"),
-        'Roboto-Bold': require("../assets/fonts/Roboto-Bold.ttf"),
-    });
+    // const [fontsLoaded] = useFonts({
+    //     'Roboto-Regular': require("../assets/fonts/Roboto-Regular.ttf"),
+    //     'Roboto-Medium': require("../assets/fonts/Roboto-Medium.ttf"),
+    //     'Roboto-Bold': require("../assets/fonts/Roboto-Bold.ttf"),
+    // });
 
-    const onLayoutRootView = useCallback(async () => {
-        if (fontsLoaded) {
-          await SplashScreen.hideAsync();
-        }
-    }, [fontsLoaded]);
+    // const onLayoutRootView = useCallback(async () => {
+    //     if (fontsLoaded) {
+    //       await SplashScreen.hideAsync();
+    //     }
+    // }, [fontsLoaded]);
     
-    if (!fontsLoaded) {
-        return null;
-    }
+    // if (!fontsLoaded) {
+    //     return null;
+    // }
 
     return (
         <TouchableWithoutFeedback onPress={keyboardTouch}>
-        <View style={styles.container} onLayout={onLayoutRootView}>
-            <ImageBackground style={styles.image} source={require('../assets/image/photo.jpg')}>
+        {/* <View style={styles.container} onLayout={onLayoutRootView}> */}
+            <ImageBackground style={styles.image} source={require('../../assets/image/photo.jpg')}>
             <View style={styles.containerForm}>
                     <KeyboardAvoidingView
                     behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -87,13 +89,25 @@ export default function LoginScreen() {
                     
                     <View style={{
                         ...styles.form,
-                        marginBottom: isShowKeyboad ? -60 : 180,
+                        marginBottom: isShowKeyboad ? -60 : 115,
                         width: dimensions
                     }}>
                         <View style={styles.header}>
-                            <Text style={styles.headerTitle}>Войти</Text>
+                            <Text style={styles.headerTitle}>Регистрация</Text>
                         </View>
                         <View>
+                            <TextInput
+                                style={styles.input}
+                                textAlign={'left'}
+                                placeholder={'Логин'}
+                                placeholderTextColor={'#BDBDBD'}
+                                onFocus={() => setIsShowKeyboard(true)}
+                                value={state.login}
+                                onChangeText={(value) => setState((prevState) => ({ ...prevState, login: value }))}
+                                onSubmitEditing={keyboardHide}
+                            />
+                        </View>
+                        <View style={{marginTop: 16}}>
                             <TextInput
                                 style={styles.input}
                                 textAlign={'left'}
@@ -105,7 +119,7 @@ export default function LoginScreen() {
                                 onSubmitEditing={keyboardHide}
                             />
                         </View>
-                            <View style={{marginTop: 16}}>
+                        <View style={{marginTop: 16}}>
                             <TextInput
                                 style={styles.input}
                                 textAlign={'left'}
@@ -126,22 +140,26 @@ export default function LoginScreen() {
                             style={styles.btn}
                             onPress={keyboardHide}
                         >
-                            <Text style={styles.btnTitle}>Войти</Text>
-                        </TouchableOpacity>
+                            <Text style={styles.btnTitle}>Зарегистрироваться</Text>
+                        </TouchableOpacity> 
+                        <Button
+                            style={{marginTop: 16, fontSize: 16, fontFamily: 'Roboto-Regular'}}    
+                            onPress={() => navigation.navigate('Login')}
+                            title='Уже есть аккаунт? Войти'       
+                        />   
                     </View>
-                    
                     </KeyboardAvoidingView>
                     </View>
             </ImageBackground>
-        </View>
+        {/* </View> */}
         </TouchableWithoutFeedback>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
+    // container: {
+    //     flex: 1,
+    // },
     image: {
         flex: 1,
         resizeMode: 'cover',
@@ -172,8 +190,8 @@ const styles = StyleSheet.create({
         right: 0
     },
     form: {
-        marginBottom: 180,
-        paddingTop: 32,
+        marginBottom: 115,
+        paddingTop: 92,
     },
     btn: {
         borderWidth: 1,
