@@ -129,11 +129,15 @@ export default function LoginScreen({navigation}) {
                         >
                             <Text style={styles.btnTitle}>Войти</Text>
                         </TouchableOpacity>
-                        <Button
-                            style={{marginTop: 16, fontSize: 16, fontFamily: 'Roboto-Regular'}}    
+                        <TouchableOpacity
+                            style={{ marginTop: 16, alignSelf: 'center' }}
                             onPress={() => navigation.navigate('Register')}
-                            title='Нет аккаунта? Зарегистрироваться'       
-                        /> 
+                        >
+                            <Text
+                            style={{ fontSize: 16, textDecorationLine: 'underline', fontFamily: 'Roboto-Regular', color: '#1B4371'}}         
+                            >Нет аккаунта? Зарегистрироваться
+                            </Text>
+                        </TouchableOpacity>        
                     </View> 
                     </KeyboardAvoidingView>
                     </View>

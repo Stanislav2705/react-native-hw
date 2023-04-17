@@ -141,12 +141,16 @@ export default function RegistrationScreen({navigation}) {
                             onPress={keyboardHide}
                         >
                             <Text style={styles.btnTitle}>Зарегистрироваться</Text>
-                        </TouchableOpacity> 
-                        <Button
-                            style={{marginTop: 16, fontSize: 16, fontFamily: 'Roboto-Regular'}}    
+                        </TouchableOpacity>  
+                        <TouchableOpacity
+                            style={{ marginTop: 16, alignSelf: 'center' }}
                             onPress={() => navigation.navigate('Login')}
-                            title='Уже есть аккаунт? Войти'       
-                        />   
+                        >
+                            <Text
+                            style={{ fontSize: 16, textDecorationLine: 'underline', fontFamily: 'Roboto-Regular', color: '#1B4371'}}         
+                            >Уже есть аккаунт? Войти
+                            </Text>
+                        </TouchableOpacity>    
                     </View>
                     </KeyboardAvoidingView>
                     </View>
