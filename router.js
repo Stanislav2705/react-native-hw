@@ -1,5 +1,5 @@
 import React from 'react'
-import { AntDesign, Feather } from '@expo/vector-icons';
+import { AntDesign, Feather, MaterialIcons } from '@expo/vector-icons';
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -34,11 +34,45 @@ import ProfileScreen from './screens/mainScreen/ProfileScreen/ProfileScreen.jsx'
     </AuthStack.Navigator>
     }
      return (
-        <MainTab.Navigator tabBarOptions={{showLabel: false}}>
-             <MainTab.Screen options={{
-                 tabBarIcon: ({ focused, color }) => (
+       <MainTab.Navigator
+         screenOptions={{
+           tabBarActiveTintColor: '#FFFFFF',
+           tabBarActiveBackgroundColor: '#FF6C00',
+           tabBarInactiveTintColor: '#212121',
+           tabBarShowLabel: false,
+           tabBarStyle: {
+             height: 60,
+             paddingHorizontal: 60,
+             paddingVertical: 8,
+             elevation: 0,
+             borderTopColor: "#E5E5E5",
+             borderTopWidth: 1,
+             display: "flex",
+           },
+           tabBarItemStyle: {
+             borderRadius: 20,
+             height: 40,
+           },
+           headerTitleAlign: 'center',
+           headerTintColor: "#212121",
+           headerStyle: {
+            backgroundColor: "#FFFFFF",
+            borderBottomWidth: 1,
+            borderBottomColor: "#E5E5E5",
+            elevation: 0,
+           },
+           headerShadowVisible: true,
+         }}
+         tabBarOptions={{ showLabel: false }}>
+         <MainTab.Screen options={{
+           tabBarIcon: ({ focused, color }) => (
             <AntDesign name="appstore-o" size={24} color={color} /> 
-         )}} name='Posts' component={PostsScreen} />
+           ),
+           title: 'Posts',
+           headerRight: () => (
+          <MaterialIcons name="logout" size={24} color='#BDBDBD' onPress={() => alert('Login')} style={{marginRight: 10}} />
+           ),
+         }} name='Posts' component={PostsScreen} />
          <MainTab.Screen options={{
                  tabBarIcon: ({ focused, color }) => (
             <AntDesign name="plus" size={24} color={color} /> 
