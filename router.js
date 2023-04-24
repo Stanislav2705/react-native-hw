@@ -63,7 +63,7 @@ import ProfileScreen from './screens/mainScreen/ProfileScreen/ProfileScreen.jsx'
            },
            headerShadowVisible: true,
          }}
-         tabBarOptions={{ showLabel: false }}>
+         >
          <MainTab.Screen options={{
            tabBarIcon: ({ focused, color }) => (
             <AntDesign name="appstore-o" size={24} color={color} /> 
