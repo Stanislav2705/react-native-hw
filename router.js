@@ -33,7 +33,7 @@ import ProfileScreen from './screens/mainScreen/ProfileScreen/ProfileScreen.jsx'
       />
     </AuthStack.Navigator>
     }
-     return (
+   return (
        <MainTab.Navigator
          screenOptions={{
            tabBarActiveTintColor: '#FFFFFF',
@@ -67,8 +67,8 @@ import ProfileScreen from './screens/mainScreen/ProfileScreen/ProfileScreen.jsx'
          <MainTab.Screen options={{
            tabBarIcon: ({ focused, color }) => (
             <AntDesign name="appstore-o" size={24} color={color} /> 
-           ),
-           title: 'Posts',
+         ),
+           headerShown: false,
            headerRight: () => (
           <MaterialIcons name="logout" size={24} color='#BDBDBD' onPress={() => alert('Login')} style={{marginRight: 10}} />
            ),
@@ -81,6 +81,6 @@ import ProfileScreen from './screens/mainScreen/ProfileScreen/ProfileScreen.jsx'
                  tabBarIcon: ({ focused, color }) => (
             <Feather name="user" size={24} color={color} /> 
          )}} name='Profile' component={ProfileScreen} />
-        </MainTab.Navigator>
+       </MainTab.Navigator>
      );
   }
