@@ -3,9 +3,11 @@ import { StyleSheet, Text, View } from "react-native"
 
 
 const CommentsScreen = () => {
+    return (
     <View style={styles.container}>
         <Text>CommentsScreen</Text>
     </View>
+    )
 }
 
 const styles = StyleSheet.create({

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { FlatList,Button, Image, StyleSheet, View } from 'react-native'
+import { FlatList,Button, Image, StyleSheet, View, Text } from 'react-native'
   
 
 const DefaultScreenPosts = ({ route, navigation }) => {
@@ -17,24 +17,34 @@ const DefaultScreenPosts = ({ route, navigation }) => {
         <View style={styles.container}>
         <FlatList
             data={posts}
-            keyExtractor={(item, indx) => indx.toString()}
+            keyExtractor={(item, index) => index.toString()}
             renderItem={({ item }) => (
                 <View
                     style={{
                         marginBottom: 10,
-                        justifyContent: 'center',
-                        alignItems: 'center'
+                        // justifyContent: 'center',
+                        alignItems: 'center',
+                        textAlign: 'left'
                     }}
                 >
                     <Image
                         source={{ uri: item.photo }}
-                        style={{ width: 350, height: 240, borderRadius: 8 }}
+                        style={{ width: 350, height: 240, borderRadius: 8,marginTop: 32 }}
                     />
+                    <Text style={styles.title}>{item.photoTitle}</Text>
+                    <View style={styles.navigation}>
+                        <Button
+                            title="go to map"
+                            onPress={() => navigation.navigate("Map", {location: item.location})}
+                        />
+                        <Button
+                            title="go to comments"
+                            onPress={() => navigation.navigate("Comments", {postId: item.id})}
+                        />
+                    </View>
                 </View>
             )}
             />
-            <Button title='go to map' onPress={() => navigation.navigate('Map')} />
-            <Button title='go to coments' onPress={() => navigation.navigate('Comments') } />
         </View>     
   )
 }
@@ -44,6 +54,15 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         // alignItems: 'center',
+    },
+    title: {
+        fontFamily: 'Roboto-Medium',
+        color: '#212121',
+        marginVertical: 8,
+        marginRight: 270
+    },
+    navigation: {
+        marginHorizontal: 0,
     }
 })
 

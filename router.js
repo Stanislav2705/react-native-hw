@@ -35,7 +35,8 @@ import ProfileScreen from './screens/mainScreen/ProfileScreen/ProfileScreen.jsx'
     }
    return (
        <MainTab.Navigator
-         screenOptions={{
+       screenOptions={{
+           keyboardHidesTabBar:true,
            tabBarActiveTintColor: '#FFFFFF',
            tabBarActiveBackgroundColor: '#FF6C00',
            tabBarInactiveTintColor: '#212121',
