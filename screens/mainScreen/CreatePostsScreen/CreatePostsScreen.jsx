@@ -1,40 +1,66 @@
 import React from 'react'
-import { Camera, CameraType } from 'expo-camera';
-import { Image, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
+import { useState, useEffect } from 'react';
+import { KeyboardAvoidingView,Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native'
+import { Camera } from 'expo-camera';
 import { MaterialIcons, Feather  } from '@expo/vector-icons';
-import { useState } from 'react';
 import * as Location from 'expo-location';
-import { useEffect } from 'react';
-import { Keyboard } from 'react-native';
 
-const CreatePostsScreen = ({navigation}) => {
+const CreatePostsScreen = ({ navigation }) => {
+    const [hasPermission, setHasPermission] = useState(null);
+    const [cameraType, setCameraType] = useState(Camera.Constants.Type.back);
     const [camera, setCamera] = useState(null);
     const [isShowKeyboard, setIsShowKeyboard] = useState(false);
+    const [isPreview, setIsPreview] = useState(false);
+    const [isCameraReady, setIsCameraReady] = useState(false);
     const [photo, setPhoto] = useState('');
     const [photoTitle, setPhotoTitle] = useState("");
-    const [photoLocation, setPhotoLocation] = useState(null)
+    const [photoLocation, setPhotoLocation] = useState(null);
+    const [location, setLocation] = useState(null);
+    const [isFocused, setIsFocused] = useState(true);
 
-    const takePhoto = async () => {
-        if (camera) {
-            const options = { quality: 0.5, base64: true, skipProcessing: true };
-            const photo = await camera.takePictureAsync(options);
-            const location = await Location.getCurrentPositionAsync();
-            console.log('latitude', location.coords.latitude);
-            console.log('longitude', location.coords.longitude);
-            setPhoto(photo.uri);
-            console.log("camera --->", photo.uri);
+    useEffect(() => {
+        (async () => {
+            const { status } = await Camera.requestCameraPermissionsAsync();
+            console.log("status", status);
+            setHasPermission(status === "granted");
+        })();
+    }, []);
+
+    useEffect(() => {
+        (async () => {
+          let { status } = await Location.requestForegroundPermissionsAsync();
+          if (status !== 'granted') {
+            setErrorMsg('Permission to access location was denied');
+            return;
+          }
+            
+          let location = await Location.getCurrentPositionAsync({});
+          const coords = {
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+          }
+          setLocation(coords);
+        })();
+      }, []);
+
+    useEffect(() => {
+        const unsubscribeFocus = navigation.addListener('focus', () => {
+            setIsFocused(true);
+        });
+
+        const unsubscribeBlur = navigation.addListener("blur", () => {
+            setIsFocused(false);
+            setIsPreview(false);
+
+            setPhotoTitle("");
+            setPhotoLocation("");
+        });
+
+        return () => {
+            unsubscribeFocus();
+            unsubscribeBlur();
         }
-    }
-
-    const sendPhoto = () => {
-        console.log('navigation', navigation);
-        navigation.navigate('DefaultScreen', {photo,photoTitle});
-    }
-
-    const keyboardHide = () => {
-        setIsShowKeyboard(false);
-        Keyboard.dismiss();
-    };
+    }, [navigation]);
 
     useEffect(() => {
         const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
@@ -48,36 +74,138 @@ const CreatePostsScreen = ({navigation}) => {
           showSubscription.remove();
           hideSubscription.remove();
         };
-      }, []);
+    }, []);
+    
+    const onCameraReady = () => {
+        setIsCameraReady(true);
+    }
 
-    useEffect(() => {
-        (async () => {
-          let { status } = await Location.requestForegroundPermissionsAsync();
-          if (status !== 'granted') {
-            setErrorMsg('Permission to access location was denied');
+    const takePhoto = async () => {
+        if (camera) {
+            const options = { quality: 0.5, base64: true, skipProcessing: true };
+            const photo = await camera.takePictureAsync(options);
+            const location = await Location.getCurrentPositionAsync();
+            console.log('latitude', location.coords.latitude);
+            console.log('longitude', location.coords.longitude);
+            if (photo.uri) {
+                await camera.pausePreview();
+                setIsPreview(true);
+                setPhoto(photo.uri);
+            }
+            console.log("camera --->", photo.uri);
+        }
+    }
+
+    const switchCamera = () => {
+        if (isPreview) {
             return;
-          }
-        })();
-      }, []);
+        }
+        setCameraType((prevCameraType) =>
+          prevCameraType === Camera.Constants.Type.back
+            ? Camera.Constants.Type.front
+            : Camera.Constants.Type.back
+        );
+    };
+
+    const cancelPreview = async () => {
+        await camera.resumePreview();
+        setIsPreview(false);
+        setPhoto(null);
+    };
+
+    const renderCancelPreviewButton = () => (
+        <TouchableOpacity onPress={cancelPreview} style={styles.closeButton}>
+            <MaterialIcons name='close' size={24} color='white' />
+        </TouchableOpacity>
+    );
+
+    const renderCaptureControl = () => (
+        <View style={styles.control}>
+            <TouchableOpacity
+                disabled={!isCameraReady}
+                onPress={switchCamera}
+                style={styles.captureWrapper}
+            >
+                <View style={styles.capture} />
+                <MaterialIcons
+                    name='flip-camera-android'
+                    size={24}
+                    color='white'
+                    style={styles.captureIcon}
+                />
+            </TouchableOpacity>
+            <TouchableOpacity
+                activeOpacity={0.2}
+                disabled={!isCameraReady}
+                onPress={takePhoto}
+                style={styles.captureWrapper}
+            >
+                <View style={styles.capture} />
+                <MaterialIcons
+                    name='photo-camera'
+                    size={24}
+                    color='white'
+                    style={styles.captureIcon}
+                />
+            </TouchableOpacity>
+        </View>
+    )
+
+    if (hasPermission === null) {
+        return <View />;
+    }
+    
+    if (hasPermission === false) {
+        return <Text>No access to camera</Text>;
+    }
+
+    const keyboardHide = () => {
+        setIsShowKeyboard(false);
+        Keyboard.dismiss();
+    };
+
+    const sendPhoto = async () => {
+        if (!photo || !photoTitle) {
+            console.log("Add photo,title and location");
+            return;
+        }
+        console.log('navigation', navigation);
+        navigation.navigate('DefaultScreen', {photo,photoTitle});
+    }
 
   return (
     <TouchableWithoutFeedback onPress={keyboardHide}>
       <View style={styles.container}>
         <KeyboardAvoidingView behavior={Platform.OS == "ios" ? "padding" : ""}>
-            <Camera style={styles.camera} ref={(ref) => setCamera(ref)}>
-                    {photo && (<View style={styles.takePhotoContainer}>
-                    <Image source={{uri: photo}} style={{height: 200, width: 200, borderRadius: 8,}} />
-                    </View>)}
-                    <TouchableOpacity onPress={takePhoto} style={styles.snapContainer}>
-                        <MaterialIcons name="camera-alt" size={24} color="#BDBDBD" />
-                    </TouchableOpacity>
-            </Camera>
+             {!isShowKeyboard && ( <>   
+            <View style={styles.cameraWrapper}>
+            {isFocused && (
+                <Camera
+                style={styles.camera}
+                ref={(ref) => setCamera(ref)}
+                type={cameraType}
+                onCameraReady={onCameraReady}
+                onMountError={(error) => {
+                    console.log("camera error", error);
+                }}              
+                />
+            )}
+            {isPreview && renderCancelPreviewButton()}
+            {!isPreview && renderCaptureControl()}              
+            </View>
+            <TouchableOpacity activeOpacity={0.8} style={{marginBottom: 32}}>      
+                <Text style={{...styles.text, color: "#BDBDBD"}}>
+                    {photo ? "Редагувати фото" : "Завантажити фото"}
+                </Text>
+            </TouchableOpacity>
+            </>         
+            )} 
             <View style={{ ...styles.inputWrapper, marginBottom: 16 }}>
                 <TextInput
                     style={{ ...styles.input, ...styles.text }}
                     value={photoTitle}
                     onChangeText={setPhotoTitle}
-                    placeholder={"Название..."}
+                    placeholder={"Назва..."}
                     placeholderTextColor="#BDBDBD"
                 />
             </View>
@@ -87,13 +215,15 @@ const CreatePostsScreen = ({navigation}) => {
                     style={{ ...styles.input, ...styles.text }}
                     value={photoLocation}
                     onChangeText={setPhotoLocation}
-                    placeholder={"Местность..."}
+                    placeholder={"Місцина..."}
                     placeholderTextColor="#BDBDBD"
                 />
             </View>
-            <TouchableOpacity onPress={sendPhoto} style={styles.sendBtn}>
-                <Text style={styles.sendLabel}>Опубликовать</Text>
-            </TouchableOpacity>    
+            {!isShowKeyboard && (      
+            <TouchableOpacity activeOpacity={0.8} onPress={sendPhoto} style={{...styles.sendBtn, backgroundColor: !photo || !photoTitle || !photoLocation ? "#F6F6F6" : "#FF6C00"}}>
+                <Text style={{...styles.sendLabel, color: !photo || !photoTitle || !photoLocation ? "#BDBDBD" : "#FFFFFF" }}>Опублікувати</Text>
+            </TouchableOpacity>  
+            )}          
         </KeyboardAvoidingView>
       </View>
     </TouchableWithoutFeedback>
@@ -103,38 +233,21 @@ const CreatePostsScreen = ({navigation}) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        paddingTop: 32,
         paddingHorizontal: 16,
+    },
+    cameraWrapper: {
+        position: 'relative',
+        borderRadius: 8,
+        overflow: "hidden",
+        marginBottom: 8,
     },
     camera: {
         height: 240,
-        marginTop: 32,
-        marginBottom: 32,
-        borderRadius: 8,
-        alignItems: 'center',
-    },
-    snap: {
-        // color: "#fff"
-    },
-    snapContainer: {
-        marginTop: 90,
-        borderWidth: 1,
-        borderColor: 'transparent',
-        backgroundColor: '#fff',
-        width: 60,
-        height: 60,
-        borderRadius: 50,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    takePhotoContainer: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        borderColor: '#fff',
-        borderWidth: 1,
-        height: 100,
-        width: 200,
-        borderRadius: 8,
+        // marginTop: 32,
+        // marginBottom: 8,
+        // borderRadius: 8,
+        // alignItems: 'center',
     },
     inputWrapper: {
         flexDirection: "row",
@@ -170,7 +283,37 @@ const styles = StyleSheet.create({
     sendLabel: {
         fontFamily: 'Roboto-Regular',
         color: '#FFFFFF'
-    }
+    },
+    closeButton: {
+        position: 'absolute',
+        top: 6,
+        right: 6,
+        justifyContent: "center",
+        alignItems: "center",
+        zIndex: 2,
+    },
+    control: {
+        position: "absolute",
+        top: 90,
+        alignSelf: "center",
+        flexDirection: "row",
+        width: 130,
+        justifyContent: "space-between",
+    },
+    captureWrapper: {
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    capture: {
+        backgroundColor: "#ffffff",
+        borderRadius: 50,
+        height: 60,
+        width: 60,
+        opacity: 0.3,
+    },
+    captureIcon: {
+        position: "absolute",
+    },
 })
 
 export default CreatePostsScreen;

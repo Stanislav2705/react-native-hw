@@ -22,9 +22,8 @@ const DefaultScreenPosts = ({ route, navigation }) => {
                 <View
                     style={{
                         marginBottom: 10,
-                        // justifyContent: 'center',
+                        justifyContent: 'center',
                         alignItems: 'center',
-                        textAlign: 'left'
                     }}
                 >
                     <Image
@@ -59,10 +58,9 @@ const styles = StyleSheet.create({
         fontFamily: 'Roboto-Medium',
         color: '#212121',
         marginVertical: 8,
-        marginRight: 270
     },
     navigation: {
-        marginHorizontal: 0,
+        // marginHorizontal: 0,
     }
 })
 
